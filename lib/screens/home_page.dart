@@ -1,10 +1,17 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'package:streamer/screens/mobile/drawer.dart';
-import 'package:streamer/screens/web_homepage/web_homepage.dart';
+import 'package:streamer/widgets/video_grid_item.dart';
 
-import 'feedScreen.dart';
+import '../model/Livestream_model.dart';
+import '../resources/firebase_methods.dart';
+import '../utils/colors.dart';
+import '../utils/video_categories.dart';
+import '../widgets/home_screen_text_field.dart';
+import 'broadcast_scren.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = "/homepage";
@@ -15,35 +22,72 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _fireStore = FirebaseFirestore.instance;
+  final TextEditingController _searchBarEditingController =
+      TextEditingController();
+  int currentSelected = 0;
+  late StreamSubscription videoStream;
+  List<LiveStream> liveStreamList = [];
+
+  streamList() async {
+    videoStream =
+        _fireStore.collection("livestream").snapshots().listen((snapshot) {
+      final snapshotDocs = snapshot.docs;
+
+      liveStreamList = snapshotDocs.map((item) {
+        return LiveStream(
+          title: item["title"],
+          image: item["image"],
+          uid: item["uid"],
+          name: item["name"],
+          viewers: item["viewers"],
+          channelId: item["channelId"],
+          startedAt: item["startedAt"],
+        );
+      }).toList();
+      setState(() {});
+      if (snapshot.docChanges.isNotEmpty) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    streamList();
+  }
+
+  @override
+  void dispose() {
+    videoStream.pause();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.black,
-
-      appBar:
-          // kIsWeb
-          //     ? PreferredSize(
-          //         child: Container(),
-          //         preferredSize: Size.fromHeight(0),
-          //       )
-          // :
-          PreferredSize(
+      backgroundColor: kScaffoldBackgroundColor,
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(180.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             AppBar(
+              elevation: 0,
               automaticallyImplyLeading: false,
-              title: const Text("Streamer",
+              title: const Text("Video Management",
                   style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 20,
                       color: Colors.white,
                       fontFamily: "Titillium Web")),
-              backgroundColor: Colors.black,
+              backgroundColor: kScaffoldBackgroundColor,
               actions: [
                 IconButton(
                   icon: const Icon(
                     Icons.menu_rounded,
-                    color: Color(0x0FFf3035a),
+                    color: Color(0xFFf3035a),
                   ),
                   onPressed: () => Navigator.push(
                       context,
@@ -53,182 +97,80 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            Column(children: [
-              ListTile(
-                title: TextField(
-                  cursorColor: Colors.white,
-                  decoration: InputDecoration(
-                    filled: true, //<-- SEE HERE
-                    fillColor: Colors.grey.shade900,
-                    hintText: 'search video...',
-                    suffixIcon: const Icon(Icons.question_mark_rounded,
-                        color: Colors.white),
-
-                    hintStyle: const TextStyle(
-                      color: Colors.white38,
-                      fontSize: 13,
-                    ),
-
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  style: const TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ]),
-            const SizedBox(
-              height: 3,
-            ),
-            Column(
-              children: [
-                SizedBox(
-                  height: kToolbarHeight,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: const [
-                        Text(
-                          "Top",
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 23.0),
+                child: homeScreenTextField(
+                    controller: _searchBarEditingController)),
+            const SizedBox(height: 5),
+            SizedBox(
+              width: size.width,
+              height: 50, //kToolbarHeight - 15,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: videoCategories.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          currentSelected = index;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          videoCategories[index],
                           style: TextStyle(
-                            color: Colors.white60,
                             fontSize: 20,
+                            color: currentSelected == index
+                                ? primaryColor
+                                : Colors.grey[500],
                           ),
                         ),
-                        SizedBox(width: 15),
-                        Text("Trending",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                        SizedBox(width: 15),
-                        Text("Explore",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                        SizedBox(width: 15),
-                        Text("Music",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                        SizedBox(width: 15),
-                        Text("Gaming",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                        SizedBox(width: 15),
-                        Text("Sport",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                        SizedBox(width: 15),
-                        Text("Music",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                        SizedBox(width: 15),
-                        Text("Gaming",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                        SizedBox(width: 15),
-                        Text("Sport",
-                            style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 20,
-                            )),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              ],
+              ),
             ),
           ],
         ),
       ),
-      body: FeedScreen(),
-          //  GridView.count(
-          //    crossAxisCount: 4,
-          //    childAspectRatio: 1.0,
-          //    padding: const EdgeInsets.all(4.0),
-          //    mainAxisSpacing: 4.0,
-          //    crossAxisSpacing: 4.0,
-          //    children: <String>[
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //      'http://www.for-example.org/img/main/forexamplelogo.png',
-          //    ].map((String url) {
-          //      return GridTile(
-          //          child: Image.network(url, fit: BoxFit.cover));
-          //    }).toList()),
-          // kIsWeb
-          //     ? WebhomePage()
-          // :
-          // GridView.builder(
-          //     itemCount: 10,
-          //     // scrollDirection: Axis.vertical,
-          //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          //       crossAxisCount: 2,
-          //       childAspectRatio: 1.0,
-          //       mainAxisSpacing: 4.0,
-          //       crossAxisSpacing: 4.0,
-          //     ),
-          //     itemBuilder: (context, index) {
-          //       return Padding(
-          //         padding: const EdgeInsets.all(4.0),
-          //         child: Stack(
-          //           children: [
-          //             Container(
-          //               decoration: BoxDecoration(
-          //                   color: Colors.grey,
-          //                   borderRadius: BorderRadius.circular(15),
-          //                   image: const DecorationImage(
-          //                       fit: BoxFit.contain,
-          //                       image: AssetImage(
-          //                         "assets/out_1.png",
-          //                       ))),
-          //             ),
-          //             Positioned.fill(
-          //               top: MediaQuery.of(context).size.height / 3.2,
-          //               child: Container(
-          //                 alignment: Alignment.bottomCenter,
-          //                 height: 20,
-          //                 decoration: BoxDecoration(
-          //                     color: Colors.grey.shade900,
-          //                     borderRadius: const BorderRadius.only(
-          //                         bottomLeft: Radius.circular(15),
-          //                         bottomRight: Radius.circular(15))),
-          //                 child: const Padding(
-          //                   padding: EdgeInsets.all(4.0),
-          //                   child: const Text(
-          //                       "With the online text generator you can process your personal Lorem Ipsum enriching it with html elements that define its",
-          //                       textAlign: TextAlign.center,
-          //                       maxLines: 2,
-          //                       style: TextStyle(color: Colors.white)),
-          //                 ),
-          //               ),
-          //             )
-          //           ],
-          //         ),
-          //       );
-          //     }),
-      // ]),
+      //body: FeedScreen(),
+      body: GridView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: liveStreamList.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: (135 / 160),
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+          ),
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () async {
+                await FirestoreMethods()
+                    .updateViewCount(liveStreamList[index].channelId, true);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => BroadcastScreen(
+                      isBroadcaster: false,
+                      channelId: liveStreamList[index].channelId,
+                    ),
+                  ),
+                );
+              },
+              child: videoGridItem(
+                screenWidth: size.width,
+                title: liveStreamList[index].title,
+                streamer: liveStreamList[index].name,
+                viewers: liveStreamList[index].viewers,
+                startTime: liveStreamList[index].startedAt,
+                imageUrl: liveStreamList[index].image,
+              ),
+            );
+          }),
     );
   }
 }
