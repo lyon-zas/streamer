@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:streamer/screens/home_page.dart';
 import 'package:streamer/screens/signup.dart';
-import 'dart:io';
-import "package:flutter/foundation.dart" show kIsWeb;
-import 'package:streamer/screens/web_login.dart';
+import 'package:streamer/widgets/authentication_text_field.dart';
 
 import '../resources/auth_method.dart';
-import 'web_homepage/web_homepage.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = "/loginscreen";
@@ -63,27 +60,28 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.black,
-        body: //kIsWeb
-            // ? const WebLogin()
-            //:
-            ListView(
+        body: Column(
           children: [
-            Container(
-              height: MediaQuery.of(context).size.height / 3,
-              decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.fill,
-                    image: AssetImage("assets/cover.jpg"),
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(15),
-                    bottomRight: Radius.circular(15),
-                  )),
+            Expanded(
+              flex: 3,
+              child: Container(
+                height: MediaQuery.of(context).size.height / 3,
+                decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: AssetImage("assets/cover.jpg"),
+                    ),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(15),
+                      bottomRight: Radius.circular(15),
+                    )),
+              ),
             ),
-            Positioned.fill(
-                top: 50,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            Expanded(
+              flex: 5,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: SingleChildScrollView(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -97,54 +95,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.white),
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 15, bottom: 5),
-                          child: Text("Email",
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                        TextField(
-                          keyboardType: TextInputType.emailAddress,
-                          cursorColor: Colors.white30,
-                          controller: _emailController,
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.w300),
-                          decoration: const InputDecoration(
-                              hintText: "sample@gmail.com",
-                              focusColor: Colors.white30,
-                              hoverColor: Colors.white30,
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.white30)),
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.white30)),
-                              hintStyle: TextStyle(color: Colors.white30)),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 15, bottom: 5),
-                          child: Text(
-                            "password",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        TextField(
-                          keyboardType: TextInputType.visiblePassword,
-                          cursorColor: Colors.white30,
-                          controller: _passwordController,
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.w300),
-                          decoration: const InputDecoration(
-                              hintText: "password",
-                              focusColor: Colors.white30,
-                              hoverColor: Colors.white30,
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.white30)),
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.white30)),
-                              hintStyle: TextStyle(color: Colors.white30)),
-                        ),
+                        authenticationTextField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            hintText: "Sample@mail.com",
+                            label: "Email"),
+                        authenticationTextField(
+                            controller: _passwordController,
+                            keyboardType: TextInputType.visiblePassword,
+                            hintText: "Password",
+                            label: "Password"),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: Row(
@@ -188,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(30),
-                                    color: Color(0x0FFf3035a))),
+                                    color: const Color(0xFFf3035a))),
                           ),
                         ),
                         const SizedBox(
@@ -210,11 +170,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                       MediaQuery.of(context).size.width / 1.2,
                                   padding: const EdgeInsets.all(0),
                                   height: 50,
-                                  onPressed: ()=> Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        SignUp())),
+                                  onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              const SignUp())),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                     side: const BorderSide(
@@ -235,7 +195,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         )
                       ]),
-                ))
+                ),
+              ),
+            )
           ],
         ));
   }

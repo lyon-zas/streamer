@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "569023695979",
+    "project_id": "stremmer-c7617",
+    "storage_bucket": "stremmer-c7617.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569023695979:android:448bc84fd1faa20dfbf52e",
+        "android_client_info": {
+          "package_name": "com.example.streamer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "569023695979-gug9l7n9kpah4t09m2qp7f4qkd68j6nq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3nTOk4pZpImUNJO7iWQDr9Qat616wXxs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "569023695979-gug9l7n9kpah4t09m2qp7f4qkd68j6nq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -77,7 +77,7 @@ class _DrawerPageState extends State<DrawerPage> {
                       ),
                       SizedBox(width: 12),
                       Text(
-                        "Account",
+                        "Settlement",
                         style: TextStyle(color: Colors.white),
                       )
                     ],
